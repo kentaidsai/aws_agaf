@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From LLMs to Agents</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --ink:#10202E;
+    --ink-2:#3B5166;
+    --ink-mute:#66808F;
+    --paper:#F4F6F7;
+    --surface:#FFFFFF;
+    --surface-2:#EBEEF0;
+    --line:#D9DFE2;
+    --accent:#D97D1F;
+    --accent-ink:#7A4A0F;
+    --accent-soft:#FBEADA;
+    --teal:#1B7A72;
+    --teal-soft:#E3F2EF;
+    --shadow: 0 1px 2px rgba(16,32,46,0.04), 0 8px 24px -12px rgba(16,32,46,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#E9F0F4;
+      --ink-2:#B7C6D0;
+      --ink-mute:#84999D;
+      --paper:#0A121A;
+      --surface:#111C26;
+      --surface-2:#182531;
+      --line:#26343F;
+      --accent:#F0A93B;
+      --accent-ink:#F7C878;
+      --accent-soft:#2C2113;
+      --teal:#57C4B6;
+      --teal-soft:#122A28;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#E9F0F4;
+    --ink-2:#B7C6D0;
+    --ink-mute:#84999D;
+    --paper:#0A121A;
+    --surface:#111C26;
+    --surface-2:#182531;
+    --line:#26343F;
+    --accent:#F0A93B;
+    --accent-ink:#F7C878;
+    --accent-soft:#2C2113;
+    --teal:#57C4B6;
+    --teal-soft:#122A28;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px -14px rgba(0,0,0,0.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  .page{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Sans 3", "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+    line-height:1.55;
+    padding:40px 18px 64px;
+    min-width:0;
+  }
+  .card{
+    max-width:920px;
+    margin:0 auto;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .display{
+    font-family:"Archivo Expanded","Noto Sans TC",sans-serif;
+    letter-spacing:-0.01em;
+  }
+  .mono{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  /* ---------- Header ---------- */
+  header.hero{
+    padding:36px 40px 30px;
+    background:
+      radial-gradient(1200px 240px at 100% -40%, var(--accent-soft), transparent 60%),
+      var(--surface);
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    display:flex; align-items:center; gap:10px;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12.5px; font-weight:600;
+    letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--accent-ink);
+    margin-bottom:16px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;}
+  h1.title{
+    font-size:clamp(30px,5vw,42px);
+    font-weight:800;
+    margin:0 0 6px;
+    color:var(--ink);
+    text-wrap:balance;
+  }
+  .title-zh{
+    font-size:19px;
+    font-weight:600;
+    color:var(--ink-2);
+    margin:0 0 22px;
+  }
+  blockquote.quote{
+    margin:0; padding:16px 0 0;
+    border-top:1px dashed var(--line);
+    font-size:15px;
+    color:var(--ink-2);
+  }
+  blockquote.quote p{margin:0 0 8px; font-style:italic;}
+  blockquote.quote cite{
+    font-style:normal; font-size:12.5px; color:var(--ink-mute);
+    font-family:"IBM Plex Mono",monospace; letter-spacing:0.02em;
+  }
+
+  /* ---------- Generic section chrome ---------- */
+  section{ padding:30px 40px; border-bottom:1px solid var(--line); }
+  section:last-of-type{ border-bottom:none; }
+  .sec-head{
+    display:flex; align-items:baseline; gap:12px; margin-bottom:18px;
+  }
+  .sec-num{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:13px; font-weight:600; color:var(--accent-ink);
+    background:var(--accent-soft);
+    border-radius:6px; padding:3px 8px;
+    flex:none;
+  }
+  .sec-title{
+    font-family:"Archivo Expanded",sans-serif;
+    font-size:21px; font-weight:700; color:var(--ink);
+  }
+  .sec-sub{
+    font-size:13px; color:var(--ink-mute); margin:-12px 0 18px 46px;
+  }
+
+  /* ---------- Definition / intro section ---------- */
+  .def-box{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px 22px;
+    margin-bottom:18px;
+    font-size:15.5px;
+    color:var(--ink-2);
+  }
+  .def-box b{color:var(--ink);}
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+  .chip{
+    font-size:13px; font-weight:600; color:var(--teal);
+    background:var(--teal-soft);
+    border-radius:999px; padding:6px 13px;
+    white-space:nowrap;
+  }
+  .example-row{ display:flex; flex-wrap:wrap; gap:10px; }
+  .example-tag{
+    font-size:13px; color:var(--ink-2);
+    border:1px solid var(--line); border-radius:8px;
+    padding:6px 12px; background:var(--surface);
+  }
+
+  /* ---------- Three-column key point grid ---------- */
+  .grid3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .kcard{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 16px 18px;
+  }
+  .kcard h4{
+    margin:0 0 8px; font-size:14.5px; font-weight:700; color:var(--ink);
+    display:flex; gap:8px; align-items:flex-start;
+  }
+  .kcard h4 .ico{
+    flex:none; width:22px;height:22px;border-radius:6px;
+    background:var(--accent-soft); color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px; font-weight:700; font-family:"IBM Plex Mono",monospace;
+  }
+  .kcard p{ margin:0; font-size:13.5px; color:var(--ink-2);}
+  .kcard ul{ margin:6px 0 0; padding-left:18px; font-size:13.5px; color:var(--ink-2);}
+  .kcard li{ margin-bottom:3px; }
+
+  .callout{
+    margin-top:14px;
+    border-left:3px solid var(--accent);
+    background:var(--accent-soft);
+    border-radius:0 10px 10px 0;
+    padding:12px 16px;
+    font-size:13.5px;
+    color:var(--accent-ink);
+  }
+  .callout b{ color:inherit; }
+
+  /* ---------- Innovations pills ---------- */
+  .innov-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+  }
+  .innov-item{
+    display:flex; gap:12px; align-items:flex-start;
+    background:var(--surface-2); border:1px solid var(--line);
+    border-radius:12px; padding:14px 15px;
+  }
+  .innov-item .num{
+    font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:13px;
+    color:var(--accent-ink); background:var(--accent-soft);
+    border-radius:50%; width:26px; height:26px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .innov-item h4{ margin:0 0 3px; font-size:14px; font-weight:700; color:var(--ink);}
+  .innov-item p{ margin:0; font-size:13px; color:var(--ink-2);}
+  .framework-strip{
+    margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;
+  }
+  .fw-tag{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px;
+    border:1px solid var(--line); border-radius:7px; padding:5px 10px;
+    color:var(--ink-2); background:var(--surface);
+  }
+
+  /* ---------- Evolution flow ---------- */
+  .flow{
+    display:grid; grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
+    align-items:stretch; gap:8px; margin-bottom:22px;
+  }
+  .flow-step{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:12px;
+    padding:14px 13px; font-size:12.5px; color:var(--ink-2);
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .flow-step.final{ background:var(--accent-soft); border-color:var(--accent); }
+  .flow-step .k{ font-weight:700; color:var(--ink); font-size:13.5px; }
+  .flow-arrow{
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-mute); font-size:18px;
+  }
+
+  .auto-title{ font-size:14.5px; font-weight:700; color:var(--ink); margin:0 0 4px;}
+  .auto-caps{ font-size:13px; color:var(--ink-2); margin:0 0 20px; }
+
+  /* ---------- Autonomy ladder ---------- */
+  .ladder{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:end;
+  }
+  .rung{
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .rung .bar{
+    border-radius:8px 8px 0 0;
+    background:linear-gradient(180deg, var(--accent), var(--accent-ink));
+    display:flex; align-items:flex-start; justify-content:center;
+    padding-top:8px;
+    color:#fff; font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:13px;
+  }
+  .rung:nth-child(1) .bar{ height:34px; opacity:0.55;}
+  .rung:nth-child(2) .bar{ height:52px; opacity:0.7;}
+  .rung:nth-child(3) .bar{ height:70px; opacity:0.85;}
+  .rung:nth-child(4) .bar{ height:88px; opacity:1;}
+  .rung .body{
+    background:var(--surface-2); border:1px solid var(--line);
+    border-radius:0 0 10px 10px; padding:10px 11px;
+    font-size:12px; color:var(--ink-2); flex:1;
+  }
+  .rung .body b{ display:block; color:var(--ink); font-size:12.5px; margin-bottom:4px;}
+  .rung .ex{
+    margin-top:7px; padding-top:7px; border-top:1px dashed var(--line);
+    font-size:11.5px; color:var(--ink-mute);
+  }
+
+  /* ---------- Challenges ---------- */
+  .grid3.challenges .kcard{ background:var(--surface); }
+  .challenges .kcard .res{
+    margin-top:8px; font-size:12px; color:#B4462E;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .challenges .kcard .res{ color:#F0917C; }
+  }
+  :root[data-theme="dark"] .challenges .kcard .res{ color:#F0917C; }
+
+  /* ---------- Summary / footer ---------- */
+  .summary-list{
+    list-style:none; margin:0; padding:0;
+    display:grid; grid-template-columns:1fr 1fr; gap:10px 20px;
+  }
+  .summary-list li{
+    display:flex; gap:10px; align-items:flex-start;
+    font-size:13.5px; color:var(--ink-2);
+  }
+  .summary-list li::before{
+    content:"✓"; flex:none; color:var(--teal); font-weight:700;
+    background:var(--teal-soft); width:20px;height:20px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center; font-size:11px;
+    margin-top:1px;
+  }
+  footer{
+    padding:20px 40px 28px;
+    display:flex; flex-wrap:wrap; gap:8px 18px; justify-content:space-between; align-items:center;
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-mute);
+  }
+
+  @media (max-width:640px){
+    header.hero, section, footer{ padding-left:22px; padding-right:22px; }
+    .grid3, .innov-grid, .ladder, .summary-list{ grid-template-columns:1fr; }
+    .flow{ grid-template-columns:1fr; }
+    .flow-arrow{ transform:rotate(90deg); padding:2px 0; }
+    .sec-sub{ margin-left:0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+
+    <header class="hero">
+      <div class="eyebrow"><span class="dot"></span>AWS Agentic AI Foundations · Module 1</div>
+      <h1 class="title display">From LLMs to Agents</h1>
+      <p class="title-zh">從大型語言模型到智能代理 — 章節重點摘要</p>
+      <blockquote class="quote">
+        <p>“Agentic AI is the future of AI innovation… We're already seeing customers use this technology to transform businesses.”</p>
+        <cite>— Matt Garman, CEO, Amazon Web Services</cite>
+      </blockquote>
+    </header>
+
+    <section>
+      <div class="sec-head">
+        <span class="sec-num mono">Intro</span>
+        <span class="sec-title">什麼是 AI Agent?</span>
+      </div>
+      <div class="def-box">
+        AWS 將 AI Agent 定義為:<b>能與環境互動、蒐集資料,並運用資料自主執行任務,以達成預先設定目標的軟體程式。</b>它把技術從「你指揮的工具」轉變為「協助你以更少心力完成更多事的夥伴」。
+      </div>
+      <div class="chip-row">
+        <span class="chip">研究與洞察</span>
+        <span class="chip">提升生產力</span>
+        <span class="chip">優化使用者體驗</span>
+        <span class="chip">改善營運</span>
+      </div>
+      <div class="example-row">
+        <span class="example-tag">實例 · 程式碼審查</span>
+        <span class="example-tag">實例 · 保險理賠</span>
+        <span class="example-tag">實例 · 複雜商業流程</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head">
+        <span class="sec-num mono">01</span>
+        <span class="sec-title">LLM 的侷限</span>
+      </div>
+      <div class="sec-sub">Limitations of large language models</div>
+      <div class="grid3">
+        <div class="kcard">
+          <h4><span class="ico">i</span>什麼是 LLM</h4>
+          <p>專注於語言輸入 / 輸出的基礎模型(FM)。</p>
+          <ul>
+            <li>摘要</li><li>文字生成</li><li>分類</li>
+            <li>開放式對話</li><li>資訊擷取</li>
+          </ul>
+        </div>
+        <div class="kcard">
+          <h4><span class="ico">✦</span>三大核心能力</h4>
+          <ul>
+            <li>內容創作</li>
+            <li>自然語言理解(NLU)</li>
+            <li>對話式 AI</li>
+          </ul>
+        </div>
+        <div class="kcard">
+          <h4><span class="ico">!</span>合成謬誤</h4>
+          <p><b>Fallacy of composition:</b>個別部分有效,不代表整合成完整系統後也會可靠運作。</p>
+        </div>
+      </div>
+      <div class="callout">
+        <b>核心挑戰 —</b> 隨著輸入量、任務複雜度與輸出範圍增加,單靠 LLM 的<b>可靠性會隨之下降</b>,這正是催生 Agent 架構的起點。
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head">
+        <span class="sec-num mono">02</span>
+        <span class="sec-title">驅動 Agent 發展的創新</span>
+      </div>
+      <div class="sec-sub">Innovations powering agents</div>
+      <div class="innov-grid">
+        <div class="innov-item">
+          <span class="num">1</span>
+          <div><h4>AI–軟體整合</h4><p>讓模型得以呼叫工具、串接系統與外部服務。</p></div>
+        </div>
+        <div class="innov-item">
+          <span class="num">2</span>
+          <div><h4>思維鏈推理(CoT)</h4><p>將推理拆解為步驟,提升複雜任務的準確性。</p></div>
+        </div>
+        <div class="innov-item">
+          <span class="num">3</span>
+          <div><h4>多模態推論</h4><p>同時理解與比較文字、圖像、音訊等多種模態。</p></div>
+        </div>
+        <div class="innov-item">
+          <span class="num">4</span>
+          <div><h4>Agent 開發框架</h4><p>提供建構 Agent 的標準化工具與程式庫。</p></div>
+        </div>
+      </div>
+      <div class="framework-strip">
+        <span class="fw-tag">CrewAI</span>
+        <span class="fw-tag">LangGraph / LangChain</span>
+        <span class="fw-tag">LlamaIndex</span>
+        <span class="fw-tag">Strands Agents SDK</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head">
+        <span class="sec-num mono">03</span>
+        <span class="sec-title">從 LLM 演進到 Agentic AI 系統</span>
+      </div>
+      <div class="sec-sub">Evolution from LLMs to agentic AI systems</div>
+
+      <div class="flow">
+        <div class="flow-step">
+          <span class="k">回答問題</span>
+          單次問答互動
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="k">Generative AI 助理</span>
+          回應使用者查詢
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="k">Generative AI Agent</span>
+          執行多步驟任務
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step final">
+          <span class="k">Agentic AI 系統</span>
+          運作如協作式數位工作者
+        </div>
+      </div>
+
+      <p class="auto-title">自主性(Autonomy)是 Agent 行為的基礎，代表 Agent 能夠：</p>
+      <p class="auto-caps">獨立追求目標 · 即時反應環境變化 · 感知並解讀周遭資訊 · 與其他 Agent 協作解決更大問題</p>
+
+      <div class="ladder">
+        <div class="rung">
+          <div class="bar mono">L1</div>
+          <div class="body">
+            <b>規則式自動化(RPA)</b>
+            預定義動作與固定順序
+            <div class="ex">例：從 PDF 擷取發票資料並存入資料庫</div>
+          </div>
+        </div>
+        <div class="rung">
+          <div class="bar mono">L2</div>
+          <div class="body">
+            <b>動態流程</b>
+            動作固定，但由路由器 / LLM 決定順序
+            <div class="ex">例：依情緒分析結果分支撰寫客服郵件</div>
+          </div>
+        </div>
+        <div class="rung">
+          <div class="bar mono">L3</div>
+          <div class="body">
+            <b>目標導向規劃</b>
+            給定目標後自行規劃並執行，監督極少
+            <div class="ex">例：跨系統自行解決問題的客服 Agent</div>
+          </div>
+        </div>
+        <div class="rung">
+          <div class="bar mono">L4</div>
+          <div class="body">
+            <b>高度自主</b>
+            跨領域運作，主動設定目標並調整策略
+            <div class="ex">例：自主研究並整合資訊的策略型 Agent</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head">
+        <span class="sec-num mono">⚠</span>
+        <span class="sec-title">自主性提升，也帶來實作挑戰</span>
+      </div>
+      <div class="sec-sub">Increased autonomy drives the need for frameworks</div>
+      <div class="grid3 challenges">
+        <div class="kcard">
+          <h4><span class="ico">1</span>推理迴圈問題</h4>
+          <p>Agent 陷入持續思考卻不採取行動的狀態。</p>
+          <div class="res">→ 回應變慢、方案不完整</div>
+        </div>
+        <div class="kcard">
+          <h4><span class="ico">2</span>工具管理複雜度</h4>
+          <p>需協調多組 API 與系統，整合成本高。</p>
+          <div class="res">→ API 使用效率低、延遲增加</div>
+        </div>
+        <div class="kcard">
+          <h4><span class="ico">3</span>錯誤復原能力</h4>
+          <p>面對非預期結果（如系統中斷）時難以應變。</p>
+          <div class="res">→ 流程失敗、客戶滿意度下降</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head">
+        <span class="sec-num mono">✓</span>
+        <span class="sec-title">Module 1 學習成果</span>
+      </div>
+      <ul class="summary-list">
+        <li>能說明傳統大型語言模型的侷限</li>
+        <li>能定義何謂 AI Agent</li>
+        <li>能描述驅動 Agentic AI 發展的關鍵創新</li>
+        <li>能總結 Agentic AI 系統的演進歷程</li>
+      </ul>
+    </section>
+
+    <footer>
+      <span>Source: ILT-TF-100-MLAGAF-11-EN_M01_InstructorDeck.pptx · 32 slides</span>
+      <span>Agentic AI Foundations 課程摘要</span>
+    </footer>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic AI Foundations 摘要圖卡索引</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --ink:#10202E;
+    --ink-2:#3B5166;
+    --ink-mute:#66808F;
+    --paper:#F4F6F7;
+    --surface:#FFFFFF;
+    --surface-2:#EBEEF0;
+    --line:#D9DFE2;
+    --accent:#D97D1F;
+    --accent-ink:#7A4A0F;
+    --accent-soft:#FBEADA;
+    --teal:#1B7A72;
+    --teal-soft:#E3F2EF;
+    --shadow: 0 1px 2px rgba(16,32,46,0.04), 0 8px 24px -12px rgba(16,32,46,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#E9F0F4;
+      --ink-2:#B7C6D0;
+      --ink-mute:#84999D;
+      --paper:#0A121A;
+      --surface:#111C26;
+      --surface-2:#182531;
+      --line:#26343F;
+      --accent:#F0A93B;
+      --accent-ink:#F7C878;
+      --accent-soft:#2C2113;
+      --teal:#57C4B6;
+      --teal-soft:#122A28;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#E9F0F4;
+    --ink-2:#B7C6D0;
+    --ink-mute:#84999D;
+    --paper:#0A121A;
+    --surface:#111C26;
+    --surface-2:#182531;
+    --line:#26343F;
+    --accent:#F0A93B;
+    --accent-ink:#F7C878;
+    --accent-soft:#2C2113;
+    --teal:#57C4B6;
+    --teal-soft:#122A28;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px -14px rgba(0,0,0,0.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  .page{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Sans 3", "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+    line-height:1.55;
+    padding:40px 18px 64px;
+    min-width:0;
+  }
+  .card{
+    max-width:920px;
+    margin:0 auto;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .display{
+    font-family:"Archivo Expanded","Noto Sans TC",sans-serif;
+    letter-spacing:-0.01em;
+  }
+  .mono{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  /* ---------- Header ---------- */
+  header.hero{
+    padding:36px 40px 30px;
+    background:
+      radial-gradient(1200px 240px at 100% -40%, var(--accent-soft), transparent 60%),
+      var(--surface);
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    display:flex; align-items:center; gap:10px;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12.5px; font-weight:600;
+    letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--accent-ink);
+    margin-bottom:16px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;}
+  h1.title{
+    font-size:clamp(30px,5vw,42px);
+    font-weight:800;
+    margin:0 0 6px;
+    color:var(--ink);
+    text-wrap:balance;
+  }
+  .title-zh{
+    font-size:19px;
+    font-weight:600;
+    color:var(--ink-2);
+    margin:0 0 22px;
+  }
+  blockquote.quote{
+    margin:0; padding:16px 0 0;
+    border-top:1px dashed var(--line);
+    font-size:15px;
+    color:var(--ink-2);
+  }
+  blockquote.quote p{margin:0 0 8px; font-style:italic;}
+  blockquote.quote cite{
+    font-style:normal; font-size:12.5px; color:var(--ink-mute);
+    font-family:"IBM Plex Mono",monospace; letter-spacing:0.02em;
+  }
+
+  /* ---------- Generic section chrome ---------- */
+  section{ padding:30px 40px; border-bottom:1px solid var(--line); }
+  section:last-of-type{ border-bottom:none; }
+  .sec-head{
+    display:flex; align-items:baseline; gap:12px; margin-bottom:18px;
+  }
+  .sec-num{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:13px; font-weight:600; color:var(--accent-ink);
+    background:var(--accent-soft);
+    border-radius:6px; padding:3px 8px;
+    flex:none;
+  }
+  .sec-title{
+    font-family:"Archivo Expanded",sans-serif;
+    font-size:21px; font-weight:700; color:var(--ink);
+  }
+  .sec-sub{
+    font-size:13px; color:var(--ink-mute); margin:-12px 0 18px 46px;
+  }
+
+  /* ---------- Definition / intro section ---------- */
+  .def-box{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px 22px;
+    margin-bottom:18px;
+    font-size:15.5px;
+    color:var(--ink-2);
+  }
+  .def-box b{color:var(--ink);}
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+  .chip{
+    font-size:13px; font-weight:600; color:var(--teal);
+    background:var(--teal-soft);
+    border-radius:999px; padding:6px 13px;
+    white-space:nowrap;
+  }
+  .example-row{ display:flex; flex-wrap:wrap; gap:10px; }
+  .example-tag{
+    font-size:13px; color:var(--ink-2);
+    border:1px solid var(--line); border-radius:8px;
+    padding:6px 12px; background:var(--surface);
+  }
+
+  /* ---------- Three-column key point grid ---------- */
+  .grid3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .kcard{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 16px 18px;
+  }
+  .kcard h4{
+    margin:0 0 8px; font-size:14.5px; font-weight:700; color:var(--ink);
+    display:flex; gap:8px; align-items:flex-start;
+  }
+  .kcard h4 .ico{
+    flex:none; width:22px;height:22px;border-radius:6px;
+    background:var(--accent-soft); color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px; font-weight:700; font-family:"IBM Plex Mono",monospace;
+  }
+  .kcard p{ margin:0; font-size:13.5px; color:var(--ink-2);}
+  .kcard ul{ margin:6px 0 0; padding-left:18px; font-size:13.5px; color:var(--ink-2);}
+  .kcard li{ margin-bottom:3px; }
+
+  .callout{
+    margin-top:14px;
+    border-left:3px solid var(--accent);
+    background:var(--accent-soft);
+    border-radius:0 10px 10px 0;
+    padding:12px 16px;
+    font-size:13.5px;
+    color:var(--accent-ink);
+  }
+  .callout b{ color:inherit; }
+
+  /* ---------- Innovations pills ---------- */
+  .innov-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+  }
+  .innov-item{
+    display:flex; gap:12px; align-items:flex-start;
+    background:var(--surface-2); border:1px solid var(--line);
+    border-radius:12px; padding:14px 15px;
+  }
+  .innov-item .num{
+    font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:13px;
+    color:var(--accent-ink); background:var(--accent-soft);
+    border-radius:50%; width:26px; height:26px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .innov-item h4{ margin:0 0 3px; font-size:14px; font-weight:700; color:var(--ink);}
+  .innov-item p{ margin:0; font-size:13px; color:var(--ink-2);}
+  .framework-strip{
+    margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;
+  }
+  .fw-tag{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px;
+    border:1px solid var(--line); border-radius:7px; padding:5px 10px;
+    color:var(--ink-2); background:var(--surface);
+  }
+
+  /* ---------- Evolution flow ---------- */
+  .flow{
+    display:grid; grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
+    align-items:stretch; gap:8px; margin-bottom:22px;
+  }
+  .flow-step{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:12px;
+    padding:14px 13px; font-size:12.5px; color:var(--ink-2);
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .flow-step.final{ background:var(--accent-soft); border-color:var(--accent); }
+  .flow-step .k{ font-weight:700; color:var(--ink); font-size:13.5px; }
+  .flow-arrow{
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-mute); font-size:18px;
+  }
+
+  .auto-title{ font-size:14.5px; font-weight:700; color:var(--ink); margin:0 0 4px;}
+  .auto-caps{ font-size:13px; color:var(--ink-2); margin:0 0 20px; }
+
+  /* ---------- Autonomy ladder ---------- */
+  .ladder{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:end;
+  }
+  .rung{
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .rung .bar{
+    border-radius:8px 8px 0 0;
+    background:linear-gradient(180deg, var(--accent), var(--accent-ink));
+    display:flex; align-items:flex-start; justify-content:center;
+    padding-top:8px;
+    color:#fff; font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:13px;
+  }
+  .rung:nth-child(1) .bar{ height:34px; opacity:0.55;}
+  .rung:nth-child(2) .bar{ height:52px; opacity:0.7;}
+  .rung:nth-child(3) .bar{ height:70px; opacity:0.85;}
+  .rung:nth-child(4) .bar{ height:88px; opacity:1;}
+  .rung .body{
+    background:var(--surface-2); border:1px solid var(--line);
+    border-radius:0 0 10px 10px; padding:10px 11px;
+    font-size:12px; color:var(--ink-2); flex:1;
+  }
+  .rung .body b{ display:block; color:var(--ink); font-size:12.5px; margin-bottom:4px;}
+  .rung .ex{
+    margin-top:7px; padding-top:7px; border-top:1px dashed var(--line);
+    font-size:11.5px; color:var(--ink-mute);
+  }
+
+  /* ---------- Challenges ---------- */
+  .grid3.challenges .kcard{ background:var(--surface); }
+  .challenges .kcard .res{
+    margin-top:8px; font-size:12px; color:#B4462E;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .challenges .kcard .res{ color:#F0917C; }
+  }
+  :root[data-theme="dark"] .challenges .kcard .res{ color:#F0917C; }
+
+  /* ---------- Summary / footer ---------- */
+  .summary-list{
+    list-style:none; margin:0; padding:0;
+    display:grid; grid-template-columns:1fr 1fr; gap:10px 20px;
+  }
+  .summary-list li{
+    display:flex; gap:10px; align-items:flex-start;
+    font-size:13.5px; color:var(--ink-2);
+  }
+  .summary-list li::before{
+    content:"✓"; flex:none; color:var(--teal); font-weight:700;
+    background:var(--teal-soft); width:20px;height:20px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center; font-size:11px;
+    margin-top:1px;
+  }
+  footer{
+    padding:20px 40px 28px;
+    display:flex; flex-wrap:wrap; gap:8px 18px; justify-content:space-between; align-items:center;
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-mute);
+  }
+
+  @media (max-width:640px){
+    header.hero, section, footer{ padding-left:22px; padding-right:22px; }
+    .grid3, .innov-grid, .ladder, .summary-list{ grid-template-columns:1fr; }
+    .flow{ grid-template-columns:1fr; }
+    .flow-arrow{ transform:rotate(90deg); padding:2px 0; }
+    .sec-sub{ margin-left:0; }
+  }
+
+  /* ---------- shared additions: comparison / stack / table / extra grids ---------- */
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+
+  .compare2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .compare2 .side{
+    background:var(--surface-2); border:1px solid var(--line);
+    border-radius:12px; padding:16px 17px;
+  }
+  .compare2 .side.accent{ border-color:var(--accent); background:var(--accent-soft); }
+  .compare2 .side h4{
+    margin:0 0 10px; font-size:15px; font-weight:700; color:var(--ink);
+    display:flex; align-items:center; gap:8px;
+  }
+  .compare2 .side h4 .tag{
+    font-family:"IBM Plex Mono",monospace; font-size:11px;
+    background:var(--surface); border:1px solid var(--line);
+    color:var(--ink-2); padding:2px 8px; border-radius:5px;
+  }
+  .compare2 .side ul{ margin:0; padding-left:18px; font-size:13px; color:var(--ink-2); }
+  .compare2 .side li{ margin-bottom:5px; }
+
+  .stack{ display:flex; flex-direction:column; gap:10px; }
+  .stack .tier{
+    background:var(--surface-2); border:1px solid var(--line);
+    border-radius:12px; padding:13px 16px;
+  }
+  .stack .tier.emph{ border-color:var(--accent); background:var(--accent-soft); }
+  .stack .tier .tier-label{
+    font-family:"IBM Plex Mono",monospace; font-size:11px;
+    letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--ink-mute); margin-bottom:9px;
+  }
+  .stack .tier.emph .tier-label{ color:var(--accent-ink); }
+  .stack .tier .tier-items{ display:flex; flex-wrap:wrap; gap:8px; }
+  .stack .tier .item{
+    font-size:13px; font-weight:600; color:var(--ink);
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px;
+  }
+
+  .mtable-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
+  table.mtable{ width:100%; border-collapse:collapse; font-size:13px; min-width:480px; }
+  .mtable th, .mtable td{
+    text-align:left; padding:10px 14px; border-bottom:1px solid var(--line);
+    color:var(--ink-2); vertical-align:top;
+  }
+  .mtable tr:last-child td{ border-bottom:none; }
+  .mtable th{
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--ink-mute); font-weight:600;
+    background:var(--surface-2);
+  }
+  .mtable td:first-child, .mtable th:first-child{ color:var(--ink); font-weight:600; white-space:nowrap; }
+
+  @media (max-width:640px){
+    .grid2, .grid4, .compare2{ grid-template-columns:1fr; }
+  }
+
+
+  /* ---------- index hub ---------- */
+  .hub-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .hub-card{
+    display:flex; flex-direction:column; gap:10px;
+    background:var(--surface-2); border:1px solid var(--line); border-radius:14px;
+    padding:20px 20px 18px; text-decoration:none; color:inherit;
+    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .hub-card:hover{ border-color:var(--accent); transform:translateY(-2px); box-shadow:var(--shadow); }
+  .hub-card:focus-visible{ outline:3px solid var(--accent); outline-offset:2px; }
+  .hub-num{
+    font-size:13px; font-weight:700; color:var(--accent-ink); background:var(--accent-soft);
+    width:34px; height:34px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hub-body h3{ margin:0 0 6px; font-size:16px; font-weight:700; color:var(--ink); font-family:"Archivo Expanded",sans-serif; }
+  .hub-body p{ margin:0; font-size:13px; color:var(--ink-2); line-height:1.55; }
+  .hub-open{
+    margin-top:auto; padding-top:10px; border-top:1px dashed var(--line);
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+    color:var(--accent-ink); display:flex; align-items:center; gap:6px;
+  }
+  @media (max-width:640px){ .hub-grid{ grid-template-columns:1fr; } }
+  @media (prefers-reduced-motion: reduce){ .hub-card{ transition:none; } }
+
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="card" style="max-width:1040px;">
+
+    <header class="hero">
+      <div class="eyebrow"><span class="dot"></span>AWS Agentic AI Foundations</div>
+      <h1 class="title display">課程重點摘要圖卡</h1>
+      <p class="title-zh">Module 1–6 視覺化摘要索引 · 點擊卡片以新視窗開啟</p>
+      <blockquote class="quote">
+        <p>從 LLM 的侷限出發，經過 Agent 類型、工作流模式、AWS 開發工具、開源框架與 AgentCore，最後到客製化與互通性 — 六張圖卡濃縮 Module 1 至 6 的核心內容。</p>
+        <cite>— Agentic AI Foundations 課程摘要索引</cite>
+      </blockquote>
+    </header>
+
+    <section style="border-bottom:none; padding-bottom:36px;">
+      <div class="hub-grid">
+
+        <a class="hub-card" href="module-01-from-llms-to-agents.html" target="_blank" rel="noopener">
+          <div class="hub-num mono">M1</div>
+          <div class="hub-body">
+            <h3>From LLMs to Agents</h3>
+            <p>LLM 的侷限、驅動 Agent 的四項創新、從 LLM 到 Agentic AI 系統的演進、自主性四等級</p>
+          </div>
+          <div class="hub-open">開啟摘要圖卡 <span aria-hidden="true">↗</span></div>
+        </a>
+
+        <a class="hub-card" href="module-02-exploring-agentic-ai.html" target="_blank" rel="noopener">
+          <div class="hub-num mono">M2</div>
+          <div class="hub-body">
+            <h3>Exploring Agentic AI</h3>
+            <p>Agentic 系統的三個架構元件、常見工具類型、四種 Agent 類型比較、貫穿全課程的 Email Agent 案例</p>
+          </div>
+          <div class="hub-open">開啟摘要圖卡 <span aria-hidden="true">↗</span></div>
+        </a>
+
+        <a class="hub-card" href="module-03-agentic-ai-workflows.html" target="_blank" rel="noopener">
+          <div class="hub-num mono">M3</div>
+          <div class="hub-body">
+            <h3>Understanding Agentic AI Workflows</h3>
+            <p>四種工作流模式（串聯／平行化／路由／協調）、客服工單實戰範例、Amazon Bedrock Flows</p>
+          </div>
+          <div class="hub-open">開啟摘要圖卡 <span aria-hidden="true">↗</span></div>
+        </a>
+
+        <a class="hub-card" href="module-04-aws-dev-productivity-tools.html" target="_blank" rel="noopener">
+          <div class="hub-num mono">M4</div>
+          <div class="hub-body">
+            <h3>AWS Agentic Development &amp; Productivity Tools</h3>
+            <p>AWS Agentic 服務堆疊、Amazon Quick Suite、Amazon Q Developer 的 SDLC 流程、Kiro spec-driven 開發</p>
+          </div>
+          <div class="hub-open">開啟摘要圖卡 <span aria-hidden="true">↗</span></div>
+        </a>
+
+        <a class="hub-card" href="module-05-agentic-ai-frameworks-agentcore.html" target="_blank" rel="noopener">
+          <div class="hub-num mono">M5</div>
+          <div class="hub-body">
+            <h3>Agentic AI Frameworks &amp; Bedrock AgentCore</h3>
+            <p>四大開源框架比較、用 Strands Agents 建立 Agent、Amazon Bedrock AgentCore 七大核心元件</p>
+          </div>
+          <div class="hub-open">開啟摘要圖卡 <span aria-hidden="true">↗</span></div>
+        </a>
+
+        <a class="hub-card" href="module-06-customizing-agentic-solutions.html" target="_blank" rel="noopener">
+          <div class="hub-num mono">M6</div>
+          <div class="hub-body">
+            <h3>Customizing Agentic Solutions</h3>
+            <p>產業客製化案例、AWS 客製化基礎架構堆疊、CloudWatch 可觀測性、A2A 與 MCP 互通協定比較</p>
+          </div>
+          <div class="hub-open">開啟摘要圖卡 <span aria-hidden="true">↗</span></div>
+        </a>
+
+      </div>
+    </section>
+
+    <footer>
+      <span>Source: ILT-TF-100-MLAGAF-11-EN Instructor Deck · Module 1–6</span>
+      <span>Agentic AI Foundations 課程摘要</span>
+    </footer>
+
+  </div>
+</div>
+</body>
+</html>
