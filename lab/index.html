@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task 2：Build Your First AI Agent — 逐步解析</title>
+<style>
+  :root{
+    --primary:#028090;
+    --primary-dark:#026e7c;
+    --secondary:#00A896;
+    --accent:#F2A541;
+    --ink:#1B262C;
+    --muted:#5B7C85;
+    --bg:#ffffff;
+    --bg-soft:#F3F8F8;
+    --card:#F3F8F8;
+    --card-border:#E3EEEE;
+    --code-bg:#0F2C33;
+    --code-text:#D7F3EF;
+    --code-accent:#7FE7CE;
+    --nav-bg:rgba(255,255,255,0.88);
+    --hero-bg:#0A2E36;
+    --hero-text:#FFFFFF;
+    --hero-muted:#9FC8C4;
+    --shadow: 0 6px 24px rgba(10,46,54,0.08);
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0B1618;
+      --bg-soft:#122327;
+      --card:#122327;
+      --card-border:#1D3237;
+      --ink:#EAF3F2;
+      --muted:#9FBFC0;
+      --nav-bg:rgba(11,22,24,0.86);
+      --hero-bg:#071A1F;
+      --shadow: 0 6px 24px rgba(0,0,0,0.35);
+    }
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  img,svg{max-width:100%;}
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(180%) blur(10px);
+    border-bottom:1px solid var(--card-border);
+  }
+  .nav-inner{
+    max-width:1180px; margin:0 auto; padding:0.7rem 1.2rem;
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  }
+  .brand{display:flex; align-items:center; gap:0.6rem; font-weight:700; font-size:0.95rem; white-space:nowrap;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--primary);}
+  .nav-links{display:flex; gap:1.3rem; list-style:none; margin:0; padding:0; font-size:0.92rem;}
+  .nav-links a{text-decoration:none; color:var(--muted); font-weight:600; padding:0.3rem 0; border-bottom:2px solid transparent; transition:.2s;}
+  .nav-links a:hover, .nav-links a.active{color:var(--primary); border-color:var(--primary);}
+  .burger{display:none; flex-direction:column; gap:4px; background:none; border:none; cursor:pointer; padding:0.4rem;}
+  .burger span{width:22px; height:2px; background:var(--ink); border-radius:2px;}
+  .mobile-menu{display:none; flex-direction:column; padding:0.5rem 1.2rem 1rem; gap:0.2rem; border-top:1px solid var(--card-border);}
+  .mobile-menu a{text-decoration:none; color:var(--ink); padding:0.6rem 0.2rem; font-weight:600; font-size:0.95rem; border-bottom:1px solid var(--card-border);}
+  @media (max-width: 860px){
+    .nav-links{display:none;}
+    .burger{display:flex;}
+    .mobile-menu.open{display:flex;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:
+      radial-gradient(circle at 90% -10%, rgba(2,128,144,0.55), transparent 45%),
+      radial-gradient(circle at -10% 110%, rgba(0,168,150,0.35), transparent 45%),
+      var(--hero-bg);
+    color:var(--hero-text);
+    padding:4.2rem 1.2rem 3.4rem;
+  }
+  .hero-inner{max-width:1180px; margin:0 auto;}
+  .kicker{
+    display:inline-block; font-size:0.78rem; font-weight:700; letter-spacing:0.14em;
+    color:var(--secondary); text-transform:uppercase; margin-bottom:1rem;
+  }
+  .hero h1{font-size:clamp(1.9rem, 4.5vw, 3.1rem); margin:0 0 0.9rem; font-weight:800; line-height:1.25;}
+  .hero p.lead{font-size:clamp(1rem, 2vw, 1.2rem); color:var(--hero-muted); max-width:52rem; margin:0 0 1.8rem;}
+  .chip-row{display:flex; flex-wrap:wrap; gap:0.55rem;}
+  .chip{
+    border:1px solid rgba(0,168,150,0.5); color:#BFE8E3; background:rgba(255,255,255,0.04);
+    padding:0.4rem 0.85rem; border-radius:999px; font-size:0.82rem; font-weight:600;
+  }
+
+  main{max-width:1180px; margin:0 auto; padding:0 1.2rem;}
+  section{padding:3.4rem 0;}
+  section + section{border-top:1px solid var(--card-border);}
+  .section-kicker{color:var(--primary); font-weight:700; font-size:0.82rem; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 0.6rem;}
+  h2.section-title{font-size:clamp(1.5rem,3vw,2.1rem); margin:0 0 0.9rem; font-weight:800;}
+  .lead-text{color:var(--muted); font-size:1.02rem; max-width:52rem; margin:0 0 2rem;}
+
+  /* ---------- OVERVIEW CARDS ---------- */
+  .grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:1rem;}
+  @media (max-width:960px){.grid-4{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:560px){.grid-4{grid-template-columns:1fr;}}
+  .ov-card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius);
+    padding:1.5rem 1.2rem; text-align:left;
+  }
+  .ov-icon{
+    width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem; margin-bottom:1rem; color:#fff;
+  }
+  .ov-card h3{margin:0 0 0.5rem; font-size:1.05rem;}
+  .ov-card p{margin:0; color:var(--muted); font-size:0.92rem;}
+
+  /* ---------- ROADMAP ---------- */
+  .roadmap{display:flex; overflow-x:auto; gap:0; padding:1.6rem 0 0.6rem; scrollbar-width:thin;}
+  .rm-step{flex:0 0 auto; width:150px; text-align:center; position:relative; padding:0 0.4rem;}
+  .rm-step:not(:last-child)::after{
+    content:""; position:absolute; top:28px; left:calc(50% + 28px); width:calc(100% - 28px); height:2px;
+    background:repeating-linear-gradient(to right, var(--secondary) 0 6px, transparent 6px 12px);
+  }
+  .rm-circle{
+    width:56px; height:56px; border-radius:50%; margin:0 auto 0.6rem; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:1rem; position:relative; z-index:1;
+  }
+  .rm-num{font-size:0.72rem; color:var(--accent); font-weight:700;}
+  .rm-label{font-weight:700; font-size:0.86rem; margin-top:0.15rem;}
+
+  /* ---------- TASK CARDS ---------- */
+  .task{padding:2.6rem 0;}
+  .task + .task{border-top:1px dashed var(--card-border);}
+  .badge{
+    display:inline-block; font-size:0.75rem; font-weight:800; color:var(--primary);
+    border:1.5px solid var(--primary); border-radius:999px; padding:0.25rem 0.8rem; margin-bottom:0.8rem;
+  }
+  .task h3{font-size:clamp(1.25rem,2.4vw,1.6rem); margin:0 0 1rem; font-weight:800;}
+  .purpose{
+    background:linear-gradient(135deg, rgba(242,165,65,0.14), rgba(242,165,65,0.05));
+    border:1px solid rgba(242,165,65,0.4); border-radius:12px; padding:0.9rem 1.1rem; margin-bottom:1.4rem;
+    font-size:0.96rem;
+  }
+  .purpose b{color:var(--accent); margin-right:0.4rem;}
+  .task-body{display:grid; grid-template-columns:1.05fr 0.95fr; gap:1.6rem; align-items:start;}
+  @media (max-width:860px){.task-body{grid-template-columns:1fr;}}
+  .task-body.reverse{grid-template-columns:0.95fr 1.05fr;}
+  @media (max-width:860px){.task-body.reverse{grid-template-columns:1fr;}}
+
+  pre.code{
+    background:var(--code-bg); color:var(--code-text); border-radius:12px; padding:1.1rem 1.2rem;
+    overflow-x:auto; font-family:"SFMono-Regular",Consolas,"Courier New",monospace; font-size:0.85rem;
+    line-height:1.65; margin:0; box-shadow:var(--shadow);
+  }
+  pre.code .c{color:#7FA3AA;}
+  pre.code .k{color:var(--code-accent); font-weight:600;}
+  pre.code .s{color:#FFD3A0;}
+
+  .notes{display:flex; flex-direction:column; gap:0.85rem;}
+  .note{background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:0.85rem 1rem;}
+  .note b{display:block; color:var(--primary); font-size:0.92rem; margin-bottom:0.25rem;}
+  .note span{font-size:0.9rem; color:var(--muted);}
+
+  .flow-cards{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1.2rem;}
+  @media (max-width:860px){.flow-cards{grid-template-columns:1fr;}}
+  .flow-card{background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:1.1rem;}
+  .flow-card .fc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.05rem;margin-bottom:0.7rem;}
+  .flow-card h4{margin:0 0 0.35rem; font-size:0.98rem;}
+  .flow-card p{margin:0; font-size:0.88rem; color:var(--muted);}
+
+  .sequence{display:grid; grid-template-columns:repeat(4,1fr); gap:0.9rem; margin-top:1.2rem;}
+  @media (max-width:860px){.sequence{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:520px){.sequence{grid-template-columns:1fr;}}
+  .seq-card{background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:1.1rem; text-align:center; position:relative;}
+  .seq-card .fc-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;margin:0 auto 0.7rem;font-size:1.1rem;}
+  .seq-card h4{margin:0 0 0.4rem; font-size:0.94rem;}
+  .seq-card p{margin:0; font-size:0.82rem; color:var(--muted);}
+
+  /* slider */
+  .temp-box{background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:1.3rem;}
+  .temp-box h4{margin:0 0 1rem;}
+  .slider-track{height:8px; border-radius:99px; background:var(--card-border); position:relative; margin:0.6rem 0 0.5rem;}
+  .slider-fill{position:absolute; left:0; top:0; height:100%; width:30%; background:var(--accent); border-radius:99px;}
+  .slider-dot{position:absolute; left:30%; top:50%; transform:translate(-50%,-50%); width:18px; height:18px; border-radius:50%; background:var(--accent); border:3px solid var(--bg);}
+  .slider-labels{display:flex; justify-content:space-between; font-size:0.78rem; color:var(--muted);}
+  .temp-current{margin-top:0.9rem; font-size:0.95rem;}
+  .temp-current b{color:var(--accent);}
+
+  /* ---------- FLOWCHART SECTION ---------- */
+  .flowchart-wrap{
+    background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius);
+    padding:1.4rem; overflow-x:auto;
+  }
+  .flowchart-wrap svg{display:block; margin:0 auto; min-width:700px; line-height:1.2;}
+  .flowchart-wrap svg foreignObject div, .flowchart-wrap svg foreignObject span{line-height:1.2 !important; white-space:normal !important;}
+  .scroll-hint{display:none; text-align:center; font-size:0.8rem; color:var(--muted); margin-top:0.6rem;}
+  @media (max-width:760px){.scroll-hint{display:block;}}
+
+  /* ---------- CONCLUSION ---------- */
+  .conclusion{
+    background:var(--hero-bg); color:var(--hero-text); border-radius:var(--radius); padding:2.4rem;
+  }
+  .conclusion h2{color:#fff;}
+  .concl-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:1.8rem; margin-top:1.2rem;}
+  @media (max-width:860px){.concl-grid{grid-template-columns:1fr;}}
+  .check-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.9rem;}
+  .check-list li{display:flex; gap:0.7rem; align-items:flex-start; font-size:0.98rem;}
+  .check-list li::before{content:"✓"; color:var(--secondary); font-weight:800; flex:0 0 auto;}
+  .ext-box{background:rgba(255,255,255,0.06); border:1px solid rgba(0,168,150,0.35); border-radius:12px; padding:1.3rem;}
+  .ext-box h4{margin:0 0 0.9rem; color:var(--accent);}
+  .ext-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.8rem;}
+  .ext-list li{display:flex; gap:0.6rem; font-size:0.92rem; color:#D7E8E6;}
+  .ext-list li::before{content:"✦"; color:var(--secondary);}
+
+  footer{padding:2.2rem 1.2rem; text-align:center; color:var(--muted); font-size:0.85rem;}
+
+  .toc-note{font-size:0.85rem; color:var(--muted); margin-top:-0.6rem; margin-bottom:1.8rem;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand"><span class="dot"></span> Task 2 · AI Agent 解析</div>
+    <ul class="nav-links">
+      <li><a href="#overview">總覽</a></li>
+      <li><a href="#roadmap">路徑</a></li>
+      <li><a href="#task-2-1">2.1–2.6</a></li>
+      <li><a href="#flowchart">流程圖</a></li>
+      <li><a href="#conclusion">結論</a></li>
+    </ul>
+    <button class="burger" id="burgerBtn" aria-label="開啟選單"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#overview">總覽</a>
+    <a href="#roadmap">學習路徑</a>
+    <a href="#task-2-1">任務 2.1 環境設定</a>
+    <a href="#task-2-2">任務 2.2 建立代理程式</a>
+    <a href="#task-2-3">任務 2.3 新增工具</a>
+    <a href="#task-2-4">任務 2.4 Logging</a>
+    <a href="#task-2-5">任務 2.5 模型組態</a>
+    <a href="#task-2-6">任務 2.6 RecipeBot</a>
+    <a href="#flowchart">流程圖</a>
+    <a href="#conclusion">結論與延伸練習</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">AWS Agentic AI Foundations · Task 2</span>
+    <h1>Build Your First AI Agent</h1>
+    <p class="lead">《Task.ipynb》逐步詳細解析 —— 用 Strands Agents 框架與 Amazon Bedrock（Nova Lite 模型），從一個能對話的代理程式，逐步進化成具備工具選擇、日誌觀察、模型調參與網路搜尋能力的實用 RecipeBot。</p>
+    <div class="chip-row">
+      <span class="chip">Strands Agents</span>
+      <span class="chip">Amazon Bedrock · Nova Lite</span>
+      <span class="chip">Tools &amp; Tool Selection</span>
+      <span class="chip">Logging</span>
+      <span class="chip">Model Config</span>
+      <span class="chip">Web Search</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="overview">
+    <p class="section-kicker">整體目的・總覽</p>
+    <h2 class="section-title">從對話代理，走向會做事的 AI 代理程式</h2>
+    <p class="lead-text">這份筆記本的核心目標，是帶你從零開始，用 Strands Agents 框架搭配 Amazon Bedrock（Amazon Nova Lite 模型），一步步建立出一個具備「思考、選擇工具、採取行動」能力的 AI 代理程式，而不只是一個單純問答的 LLM。整體共分成六個子任務，脈絡是：先建立最簡單的對話代理 → 幫它加上工具讓它會「做事」→ 開日誌看它內部怎麼決策 → 調整模型參數控制它的行為 → 最後整合網路搜尋，做出一個真正能上網查資料的「食譜助理」實戰範例。</p>
+
+    <div class="grid-4">
+      <div class="ov-card">
+        <div class="ov-icon" style="background:#028090;">💬</div>
+        <h3>建立對話代理</h3>
+        <p>用最少程式碼建立可對話的 Agent，理解模型與系統提示詞的基本組成。</p>
+      </div>
+      <div class="ov-card">
+        <div class="ov-icon" style="background:#00A896;">🛠️</div>
+        <h3>加入工具與決策</h3>
+        <p>掛載內建與自訂工具，觀察代理程式如何自動判斷該用哪個工具、或直接呼叫工具。</p>
+      </div>
+      <div class="ov-card">
+        <div class="ov-icon" style="background:#028090;">🎚️</div>
+        <h3>觀察與調參</h3>
+        <p>用 Logging 看懂內部運作，並透過 temperature 等參數控制回應風格。</p>
+      </div>
+      <div class="ov-card">
+        <div class="ov-icon" style="background:#F2A541;">🔎</div>
+        <h3>整合真實案例</h3>
+        <p>串接網路搜尋工具，打造能上網查資料的 RecipeBot 食譜助理。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <p class="section-kicker">學習路徑總覽</p>
+    <h2 class="section-title">六個任務，一條從基礎到實戰的路徑</h2>
+    <p class="lead-text">每一步都建立在前一步之上：先有能對話的代理程式，才有加工具的意義；先看得懂內部運作（Logging），調參才有依據；最後把工具能力用在真實案例（網路搜尋食譜）上，完整走完一次代理程式開發流程。</p>
+    <div class="roadmap">
+      <div class="rm-step"><div class="rm-circle" style="background:#028090;">⚙️</div><div class="rm-num">2.1</div><div class="rm-label">環境設定</div></div>
+      <div class="rm-step"><div class="rm-circle" style="background:#00A896;">💬</div><div class="rm-num">2.2</div><div class="rm-label">建立代理程式</div></div>
+      <div class="rm-step"><div class="rm-circle" style="background:#028090;">🛠️</div><div class="rm-num">2.3</div><div class="rm-label">新增工具</div></div>
+      <div class="rm-step"><div class="rm-circle" style="background:#00A896;">🧾</div><div class="rm-num">2.4</div><div class="rm-label">Logging</div></div>
+      <div class="rm-step"><div class="rm-circle" style="background:#028090;">🎚️</div><div class="rm-num">2.5</div><div class="rm-label">模型組態</div></div>
+      <div class="rm-step"><div class="rm-circle" style="background:#F2A541;">✅</div><div class="rm-num">2.6</div><div class="rm-label">RecipeBot</div></div>
+    </div>
+  </section>
+
+  <!-- ===================== TASK 2.1 ===================== -->
+  <section class="task" id="task-2-1">
+    <span class="badge">TASK 2.1</span>
+    <h3>環境設定</h3>
+    <div class="purpose"><b>目的</b>安裝建立 AI 代理程式所需的基礎套件，作為整份筆記本的地基。</div>
+    <div class="task-body">
+      <pre class="code"><span class="c"># Install the Strands Agents framework and tools</span>
+<span class="c"># %pip install strands-agents strands-agents-tools</span></pre>
+      <div class="notes">
+        <div class="note"><b>strands-agents</b><span>核心框架，提供 Agent、@tool 等類別／裝飾器。</span></div>
+        <div class="note"><b>strands-agents-tools</b><span>官方現成工具集合，例如稍後用到的 calculator。</span></div>
+        <div class="note"><b>為什麼被註解？</b><span>教學環境通常已預先安裝，因此程式碼被註解掉，避免重複安裝耗費時間；之後所有 <code>from strands import ...</code> 都仰賴這裡安裝好的套件。</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TASK 2.2 ===================== -->
+  <section class="task" id="task-2-2">
+    <span class="badge">TASK 2.2</span>
+    <h3>建立你的第一個 AI 代理程式</h3>
+    <div class="purpose"><b>目的</b>用最少的程式碼建立能對話的代理程式，理解 Agent 物件的基本組成。</div>
+    <div class="task-body">
+      <pre class="code"><span class="k">from</span> strands <span class="k">import</span> Agent
+
+agent = Agent(
+    callback_handler=None,
+    model=<span class="s">"amazon.nova-lite-v1:0"</span>,
+    system_prompt=<span class="s">"You are a helpful
+        assistant that provides concise responses."</span>
+)
+
+response = agent(<span class="s">"Hello! Tell me a joke."</span>)
+print(response)</pre>
+      <div class="notes">
+        <div class="note"><b>callback_handler=None</b><span>關閉逐字串流輸出，讓結果一次性回傳，方便閱讀。</span></div>
+        <div class="note"><b>model="amazon.nova-lite-v1:0"</b><span>指定底層 LLM 為 Bedrock 的 Nova Lite —— 輕量、低延遲，適合示範。</span></div>
+        <div class="note"><b>system_prompt</b><span>定義代理程式的人設與行為準則：一個「提供簡潔回應」的助理。</span></div>
+        <div class="note"><b>呼叫 agent(...)</b><span>把 Agent 當成可呼叫物件，驗證「模型 + 系統提示詞」已能正常對話。</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TASK 2.3 ===================== -->
+  <section class="task" id="task-2-3">
+    <span class="badge">TASK 2.3</span>
+    <h3>為代理程式新增工具</h3>
+    <div class="purpose"><b>目的</b>讓代理程式從「只能聊天」進化成「能實際採取行動」，並理解代理程式如何自動判斷該用哪個工具，以及如何繞過判斷、直接呼叫工具。</div>
+
+    <pre class="code"><span class="k">from</span> strands <span class="k">import</span> Agent, tool
+<span class="k">from</span> strands_tools <span class="k">import</span> calculator
+
+@tool
+<span class="k">def</span> weather():
+    <span class="s">"""Get current weather information"""</span>
+    <span class="k">return</span> <span class="s">"Sunny and O degree Celsius"</span>
+
+agent_with_tools = Agent(
+    callback_handler=None,
+    model=<span class="s">"amazon.nova-lite-v1:0"</span>,
+    tools=[calculator, weather],
+    system_prompt=<span class="s">"You are a helpful assistant..."</span>
+)
+
+response = agent_with_tools(<span class="s">"What is the weather in Seattle in Fahrenheit?"</span>)</pre>
+
+    <div class="flow-cards">
+      <div class="flow-card">
+        <div class="fc-icon" style="background:#028090;">🧮</div>
+        <h4>calculator（內建工具）</h4>
+        <p>直接從 strands_tools 匯入的現成工具，不需自己實作，開箱即用。</p>
+      </div>
+      <div class="flow-card">
+        <div class="fc-icon" style="background:#00A896;">🌤️</div>
+        <h4>weather（@tool 自訂）</h4>
+        <p>用 @tool 裝飾器把普通函式註冊成工具；docstring 會被當作工具說明給模型參考。此處為示範，固定回傳「Sunny」。</p>
+      </div>
+      <div class="flow-card">
+        <div class="fc-icon" style="background:#F2A541;">🔗</div>
+        <h4>多步驟工具鏈</h4>
+        <p>「西雅圖溫度是幾華氏？」刻意需要先呼叫 weather 拿攝氏度，再用 calculator 換算——展示代理程式自主規劃步驟的能力。</p>
+      </div>
+    </div>
+
+    <div class="task-body" style="margin-top:2rem;">
+      <div>
+        <h4 style="margin:0 0 0.6rem;">自動工具選擇</h4>
+        <pre class="code">math_query = <span class="s">"What is 25 * 4 + 18?"</span>
+response = agent_with_tools(math_query)</pre>
+        <p style="color:var(--muted); font-size:0.92rem; margin-top:0.8rem;">提出純數學問題，代理程式會自行判斷「只需要 calculator，不需要 weather」——展示模型的工具選擇邏輯，而非每次呼叫全部工具。</p>
+      </div>
+      <div>
+        <h4 style="margin:0 0 0.6rem;">直接呼叫工具</h4>
+        <pre class="code">result = agent_with_tools.tool
+    .calculator(expression=<span class="s">"2 + 3 * 4"</span>)</pre>
+        <p style="color:var(--muted); font-size:0.92rem; margin-top:0.8rem;">用 <code>agent.tool.&lt;工具名稱&gt;()</code> 語法，略過模型的自然語言判斷，直接呼叫底層工具函式。適用於除錯、單元測試，或已明確知道要用哪個工具時，節省一次模型推論。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TASK 2.4 ===================== -->
+  <section class="task" id="task-2-4">
+    <span class="badge">TASK 2.4</span>
+    <h3>設定記錄（Logging）</h3>
+    <div class="purpose"><b>目的</b>打開「黑盒子」，觀察代理程式背後的決策與呼叫過程，方便除錯與理解。</div>
+    <div class="task-body">
+      <pre class="code"><span class="k">import</span> logging
+logging.getLogger(<span class="s">"strands"</span>).setLevel(
+    logging.INFO)
+
+logging.basicConfig(
+    format=<span class="s">"%(asctime)s | %(levelname)s | %(name)s | %(message)s"</span>,
+    level=logging.INFO,
+    handlers=[logging.StreamHandler()]
+)
+
+logger = logging.getLogger(<span class="s">"agent_activity"</span>)
+logger.info(<span class="s">"Creating new agent..."</span>)
+logged_agent = Agent(callback_handler=None, model=<span class="s">"amazon.nova-lite-v1:0"</span>)</pre>
+      <div class="notes">
+        <div class="note"><b>setLevel(logging.INFO)</b><span>把框架內部日誌層級調高，讓模型呼叫、工具觸發等訊息也會顯示。</span></div>
+        <div class="note"><b>basicConfig(...)</b><span>設定輸出格式（時間戳記／層級／名稱／訊息）與輸出位置（主控台）。</span></div>
+        <div class="note"><b>自訂 logger</b><span>在建立代理程式前後手動標記，對照你的程式碼執行點與框架日誌。</span></div>
+        <div class="note"><b>純觀測工具</b><span>不影響代理程式行為，是正式環境排查問題的重要手段。</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TASK 2.5 ===================== -->
+  <section class="task" id="task-2-5">
+    <span class="badge">TASK 2.5</span>
+    <h3>探索模型組態</h3>
+    <div class="purpose"><b>目的</b>學習如何客製化底層模型參數，而不只用預設設定，藉此控制回應風格。</div>
+    <div class="task-body">
+      <pre class="code"><span class="k">from</span> strands.models <span class="k">import</span> BedrockModel
+
+custom_model = BedrockModel(
+    model_id=<span class="s">"amazon.nova-lite-v1:0"</span>,
+    temperature=0.3
+)
+custom_agent = Agent(
+    callback_handler=None,
+    model=custom_model)</pre>
+      <div class="temp-box">
+        <h4>Temperature 溫度參數</h4>
+        <div class="slider-track"><div class="slider-fill"></div><div class="slider-dot"></div></div>
+        <div class="slider-labels"><span>0.0（一致 / 保守）</span><span>1.0（創意 / 多樣）</span></div>
+        <div class="temp-current">目前設定：<b>temperature = 0.3</b></div>
+        <p style="color:var(--muted); font-size:0.9rem; margin-top:0.8rem;">數值越低，回應越一致、越可預測；數值越高，回應越有創意、越多樣但較不穩定。此處選擇偏低的 0.3，代表希望代理程式回答較穩定一致。也展示了 Strands 的彈性：模型可以用字串快速指定，也可以用 BedrockModel 物件精細調參。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TASK 2.6 ===================== -->
+  <section class="task" id="task-2-6">
+    <span class="badge">TASK 2.6</span>
+    <h3>建立食譜助理代理程式（RecipeBot）</h3>
+    <div class="purpose"><b>目的</b>整合前面所學，打造具備真實應用價值的實例——一個能上網搜尋、回答烹飪問題的助理。</div>
+    <div class="task-body">
+      <pre class="code"><span class="c">%pip install ddgs</span>
+
+@tool
+<span class="k">def</span> websearch(keywords: str, max_results: int = 3) -> str:
+    <span class="s">"""Search the web for information."""</span>
+    <span class="k">try</span>:
+        results = DDGS().text(keywords, max_results=max_results)
+        <span class="k">return</span> results <span class="k">or</span> <span class="s">"No results found."</span>
+    <span class="k">except</span> Exception <span class="k">as</span> e:
+        <span class="k">return</span> f<span class="s">"Search error: {e}"</span>
+
+recipe_agent = Agent(
+    callback_handler=None,
+    model=<span class="s">"amazon.nova-lite-v1:0"</span>,
+    system_prompt=<span class="s">"""You are RecipeBot, a helpful cooking assistant.
+    Use the websearch tool to find recipes..."""</span>,
+    tools=[websearch]
+)</pre>
+      <div class="notes">
+        <div class="note"><b>ddgs</b><span>DuckDuckGo 搜尋套件，讓代理程式能「連上網路」查資料。</span></div>
+        <div class="note"><b>型別提示與 docstring</b><span>keywords/max_results 與 Args/Returns 說明，讓模型理解如何呼叫此工具。</span></div>
+        <div class="note"><b>try/except</b><span>捕捉搜尋例外並轉成易讀錯誤訊息，避免代理程式因搜尋失敗而中斷。</span></div>
+        <div class="note"><b>角色化 system_prompt</b><span>賦予「RecipeBot」身份，並明確指示使用 websearch，避免資訊過時或編造。</span></div>
+      </div>
+    </div>
+
+    <h4 style="margin:2rem 0 0.4rem;">測試 RecipeBot：完整案例展示</h4>
+    <p style="color:var(--muted); font-size:0.92rem; margin:0 0 0.6rem;"><code>response = recipe_agent("Suggest a simple recipe with chicken and broccoli.")</code></p>
+    <div class="sequence">
+      <div class="seq-card"><div class="fc-icon" style="background:#028090;">💬</div><h4>使用者提問</h4><p>"Suggest a simple recipe with chicken and broccoli."</p></div>
+      <div class="seq-card"><div class="fc-icon" style="background:#00A896;">🔀</div><h4>代理程式判斷</h4><p>這需要即時資訊，決定呼叫 websearch 工具。</p></div>
+      <div class="seq-card"><div class="fc-icon" style="background:#F2A541;">🔎</div><h4>執行網路搜尋</h4><p>DDGS().text(...) 取得相關食譜與烹飪資訊。</p></div>
+      <div class="seq-card"><div class="fc-icon" style="background:#028090;">✅</div><h4>整合回答</h4><p>統整搜尋結果，生成雞肉花椰菜料理建議。</p></div>
+    </div>
+    <p class="lead-text" style="margin-top:1.4rem;">這是整份筆記本從「玩具範例」走向「實用工具」的完整展示：代理程式不再只靠內建知識回答，而是主動取得即時資訊再作答，避免資訊過時或編造。</p>
+  </section>
+
+  <!-- ===================== FLOWCHART ===================== -->
+  <section id="flowchart">
+    <p class="section-kicker">流程圖 Overview</p>
+    <h2 class="section-title">從環境設定到 RecipeBot 的完整流程</h2>
+    <p class="lead-text">六個任務依序推進，代理程式在「新增工具」階段可自主判斷要用哪個工具、或被直接呼叫，最終整合成一個具備網路搜尋能力的實用代理程式。</p>
+    <div class="flowchart-wrap">
+      <svg aria-roledescription="flowchart-v2" role="graphics-document document" viewBox="-8 -8 1641.84375 168" style="max-width: 1641.84375px;" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" id="mermaid-1788813872957"><style>#mermaid-1788813872957{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#333;}#mermaid-1788813872957 .error-icon{fill:hsl(220.5882352941, 100%, 98.3333333333%);}#mermaid-1788813872957 .error-text{fill:rgb(8.5000000002, 5.7500000001, 0);stroke:rgb(8.5000000002, 5.7500000001, 0);}#mermaid-1788813872957 .edge-thickness-normal{stroke-width:2px;}#mermaid-1788813872957 .edge-thickness-thick{stroke-width:3.5px;}#mermaid-1788813872957 .edge-pattern-solid{stroke-dasharray:0;}#mermaid-1788813872957 .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-1788813872957 .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-1788813872957 .marker{fill:#0b0b0b;stroke:#0b0b0b;}#mermaid-1788813872957 .marker.cross{stroke:#0b0b0b;}#mermaid-1788813872957 svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#mermaid-1788813872957 .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#333;}#mermaid-1788813872957 .cluster-label text{fill:rgb(8.5000000002, 5.7500000001, 0);}#mermaid-1788813872957 .cluster-label span,#mermaid-1788813872957 p{color:rgb(8.5000000002, 5.7500000001, 0);}#mermaid-1788813872957 .label text,#mermaid-1788813872957 span,#mermaid-1788813872957 p{fill:#333;color:#333;}#mermaid-1788813872957 .node rect,#mermaid-1788813872957 .node circle,#mermaid-1788813872957 .node ellipse,#mermaid-1788813872957 .node polygon,#mermaid-1788813872957 .node path{fill:#fff4dd;stroke:hsl(40.5882352941, 60%, 83.3333333333%);stroke-width:1px;}#mermaid-1788813872957 .flowchart-label text{text-anchor:middle;}#mermaid-1788813872957 .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#mermaid-1788813872957 .node .label{text-align:center;}#mermaid-1788813872957 .node.clickable{cursor:pointer;}#mermaid-1788813872957 .arrowheadPath{fill:#0b0b0b;}#mermaid-1788813872957 .edgePath .path{stroke:#0b0b0b;stroke-width:2.0px;}#mermaid-1788813872957 .flowchart-link{stroke:#0b0b0b;fill:none;}#mermaid-1788813872957 .edgeLabel{background-color:hsl(-79.4117647059, 100%, 93.3333333333%);text-align:center;}#mermaid-1788813872957 .edgeLabel rect{opacity:0.5;background-color:hsl(-79.4117647059, 100%, 93.3333333333%);fill:hsl(-79.4117647059, 100%, 93.3333333333%);}#mermaid-1788813872957 .labelBkg{background-color:rgba(243.9999999999, 220.9999999998, 255, 0.5);}#mermaid-1788813872957 .cluster rect{fill:hsl(220.5882352941, 100%, 98.3333333333%);stroke:hsl(220.5882352941, 60%, 88.3333333333%);stroke-width:1px;}#mermaid-1788813872957 .cluster text{fill:rgb(8.5000000002, 5.7500000001, 0);}#mermaid-1788813872957 .cluster span,#mermaid-1788813872957 p{color:rgb(8.5000000002, 5.7500000001, 0);}#mermaid-1788813872957 div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(220.5882352941, 100%, 98.3333333333%);border:1px solid hsl(220.5882352941, 60%, 88.3333333333%);border-radius:2px;pointer-events:none;z-index:100;}#mermaid-1788813872957 .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#333;}#mermaid-1788813872957 :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}#mermaid-1788813872957 .stage&gt;*{fill:#E6F6F5!important;stroke:#028090!important;stroke-width:2px!important;color:#0A2E36!important;font-weight:bold!important;}#mermaid-1788813872957 .stage span{fill:#E6F6F5!important;stroke:#028090!important;stroke-width:2px!important;color:#0A2E36!important;font-weight:bold!important;}#mermaid-1788813872957 .stage tspan{fill:#0A2E36!important;}#mermaid-1788813872957 .decision&gt;*{fill:#FFF3DC!important;stroke:#F2A541!important;stroke-width:2px!important;color:#0A2E36!important;font-weight:bold!important;}#mermaid-1788813872957 .decision span{fill:#FFF3DC!important;stroke:#F2A541!important;stroke-width:2px!important;color:#0A2E36!important;font-weight:bold!important;}#mermaid-1788813872957 .decision tspan{fill:#0A2E36!important;}#mermaid-1788813872957 .done&gt;*{fill:#028090!important;stroke:#0A2E36!important;stroke-width:2px!important;color:#FFFFFF!important;font-weight:bold!important;}#mermaid-1788813872957 .done span{fill:#028090!important;stroke:#0A2E36!important;stroke-width:2px!important;color:#FFFFFF!important;font-weight:bold!important;}#mermaid-1788813872957 .done tspan{fill:#FFFFFF!important;}</style><g><marker orient="auto" markerHeight="12" markerWidth="12" markerUnits="userSpaceOnUse" refY="5" refX="6" viewBox="0 0 10 10" class="marker flowchart" id="mermaid-1788813872957_flowchart-pointEnd"><path style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 0 0 L 10 5 L 0 10 z"></path></marker><marker orient="auto" markerHeight="12" markerWidth="12" markerUnits="userSpaceOnUse" refY="5" refX="4.5" viewBox="0 0 10 10" class="marker flowchart" id="mermaid-1788813872957_flowchart-pointStart"><path style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 0 5 L 10 10 L 10 0 z"></path></marker><marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5" refX="11" viewBox="0 0 10 10" class="marker flowchart" id="mermaid-1788813872957_flowchart-circleEnd"><circle style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" r="5" cy="5" cx="5"></circle></marker><marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5" refX="-1" viewBox="0 0 10 10" class="marker flowchart" id="mermaid-1788813872957_flowchart-circleStart"><circle style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" r="5" cy="5" cx="5"></circle></marker><marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5.2" refX="12" viewBox="0 0 11 11" class="marker cross flowchart" id="mermaid-1788813872957_flowchart-crossEnd"><path style="stroke-width: 2; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 1,1 l 9,9 M 10,1 l -9,9"></path></marker><marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5.2" refX="-1" viewBox="0 0 11 11" class="marker cross flowchart" id="mermaid-1788813872957_flowchart-crossStart"><path style="stroke-width: 2; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 1,1 l 9,9 M 10,1 l -9,9"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path marker-end="url(#mermaid-1788813872957_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-A LE-B" id="L-A-B-0" d="M105.688,76L109.854,76C114.021,76,122.354,76,129.804,76C137.254,76,143.821,76,147.104,76L150.388,76"></path><path marker-end="url(#mermaid-1788813872957_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-B LE-C" id="L-B-C-0" d="M341.375,76L345.542,76C349.708,76,358.042,76,365.492,76C372.942,76,379.508,76,382.792,76L386.075,76"></path><path marker-end="url(#mermaid-1788813872957_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-C LE-D" id="L-C-D-0" d="M566.422,76L570.589,76C574.755,76,583.089,76,590.622,76.066C598.156,76.132,604.889,76.264,608.256,76.33L611.623,76.396"></path><path marker-end="url(#mermaid-1788813872957_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-D LE-E" id="L-D-E-0" d="M768.922,76.5L773.005,76.417C777.089,76.333,785.255,76.167,792.622,76.083C799.989,76,806.555,76,809.839,76L813.122,76"></path><path marker-end="url(#mermaid-1788813872957_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-E LE-F" id="L-E-F-0" d="M991.641,76L995.807,76C999.974,76,1008.307,76,1015.757,76C1023.207,76,1029.774,76,1033.057,76L1036.341,76"></path><path marker-end="url(#mermaid-1788813872957_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-F LE-G" id="L-F-G-0" d="M1179.328,76L1183.495,76C1187.661,76,1195.995,76,1203.445,76C1210.895,76,1217.461,76,1220.745,76L1224.028,76"></path><path marker-end="url(#mermaid-1788813872957_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-G LE-H" id="L-G-H-0" d="M1386.594,76L1390.76,76C1394.927,76,1403.26,76,1410.71,76C1418.16,76,1424.727,76,1428.01,76L1431.294,76"></path></g><g class="edgeLabels"><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g transform="translate(52.84375, 76)" data-id="A" data-node="true" id="flowchart-A-0" class="node default stage flowchart-label"><rect height="36" width="105.6875" y="-18" x="-52.84375" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-45.34375, -10.5)" style="" class="label"><rect></rect><foreignObject height="21" width="90.6875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">2.1 環境設定</span></div></foreignObject></g></g><g transform="translate(248.53125, 76)" data-id="B" data-node="true" id="flowchart-B-1" class="node default stage flowchart-label"><rect height="36" width="185.6875" y="-18" x="-92.84375" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-85.34375, -10.5)" style="" class="label"><rect></rect><foreignObject height="21" width="170.6875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">2.2 建立第一個代理程式</span></div></foreignObject></g></g><g transform="translate(478.8984375, 76)" data-id="C" data-node="true" id="flowchart-C-3" class="node default stage flowchart-label"><rect height="54" width="175.046875" y="-27" x="-87.5234375" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-80.0234375, -19.5)" style="" class="label"><rect></rect><foreignObject height="39" width="160.046875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">2.3 新增工具<br>(calculator / weather)</span></div></foreignObject></g></g><g transform="translate(692.421875, 76)" data-id="D" data-node="true" id="flowchart-D-5" class="node default decision flowchart-label"><polygon style="" transform="translate(-76,76)" class="label-container" points="76,0 152,-76 76,-152 0,-76"></polygon><g transform="translate(-40, -21)" style="" class="label"><rect></rect><foreignObject height="42" width="80"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">工具選擇<br>或直接呼叫</span></div></foreignObject></g></g><g transform="translate(905.03125, 76)" data-id="E" data-node="true" id="flowchart-E-7" class="node default stage flowchart-label"><rect height="36" width="173.21875" y="-18" x="-86.609375" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-79.109375, -10.5)" style="" class="label"><rect></rect><foreignObject height="21" width="158.21875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">2.4 設定記錄 Logging</span></div></foreignObject></g></g><g transform="translate(1110.484375, 76)" data-id="F" data-node="true" id="flowchart-F-9" class="node default stage flowchart-label"><rect height="54" width="137.6875" y="-27" x="-68.84375" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-61.34375, -19.5)" style="" class="label"><rect></rect><foreignObject height="39" width="122.6875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">2.5 模型組態調參<br>(temperature)</span></div></foreignObject></g></g><g transform="translate(1307.9609375, 76)" data-id="G" data-node="true" id="flowchart-G-11" class="node default stage flowchart-label"><rect height="57" width="157.265625" y="-28.5" x="-78.6328125" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-71.1328125, -21)" style="" class="label"><rect></rect><foreignObject height="42" width="142.265625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">2.6 建立 RecipeBot<br>(websearch 工具)</span></div></foreignObject></g></g><g transform="translate(1531.21875, 76)" data-id="H" data-node="true" id="flowchart-H-13" class="node default done flowchart-label"><rect height="57" width="189.25" y="-28.5" x="-94.625" ry="28.5" rx="28.5" style=""></rect><g transform="translate(-80, -21)" style="" class="label"><rect></rect><foreignObject height="42" width="160"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">完成：具工具使用能力<br>的實用 AI 代理程式</span></div></foreignObject></g></g></g></g></g></svg>
+    </div>
+    <p class="scroll-hint">← 左右滑動查看完整流程 →</p>
+  </section>
+
+  <!-- ===================== CONCLUSION ===================== -->
+  <section id="conclusion">
+    <div class="conclusion">
+      <p class="section-kicker" style="color:var(--secondary);">結論與延伸練習</p>
+      <h2 class="section-title">你已具備打造實用 AI 代理程式的完整能力</h2>
+      <div class="concl-grid">
+        <ul class="check-list">
+          <li>建立最基本的對話代理程式</li>
+          <li>掛載內建／自訂工具，理解自動選擇與直接呼叫的差異</li>
+          <li>透過日誌觀察代理程式的內部運作</li>
+          <li>客製化模型參數（如 temperature）控制回應風格</li>
+          <li>整合網路搜尋，打造具實際應用價值的代理程式（RecipeBot）</li>
+        </ul>
+        <div class="ext-box">
+          <h4>延伸練習</h4>
+          <ul class="ext-list">
+            <li>修改 system_prompt，打造適用於不同情境的代理程式</li>
+            <li>為團隊實際需求設計自訂工具</li>
+            <li>嘗試不同模型組態，觀察對代理程式行為的影響</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Agentic AI Lab ｜ 資元科技顧問 ｜ 由分析 Task.ipynb 全部 28 個 cell 內容後整理產生
+</footer>
+
+<script>
+  const burgerBtn = document.getElementById('burgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burgerBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  });
+
+  const sections = document.querySelectorAll('main section, main .task');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  sections.forEach(s => { if (s.id) io.observe(s); });
+</script>
+
+</body>
+</html>
